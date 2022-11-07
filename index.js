@@ -20,7 +20,10 @@ app.get("/", (req, res) => {
 //mongodb connection
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@cluster0.erzixne.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri);
+//database collections
 const dbServices = client.db("koni's-kitchen").collection("services");
+const dbReviews = client.db("koni's-kitchen").collection("reviews");
+
 const dbConnection = async () => {
   try {
     await client.connect();
@@ -57,6 +60,30 @@ app.get("/services/:id", async (req, res) => {
       status: true,
       data: service,
     });
+  } catch (err) {
+    console.log(err.name, err.message);
+    res.send({
+      status: false,
+      data: err.name,
+    });
+  }
+});
+
+//create review
+app.post("/reviews", async (req, res) => {
+  try {
+    const result = await dbReviews.insertOne(req.body);
+    if (result.insertedId) {
+      res.send({
+        status: true,
+        data: result.insertedId,
+      });
+    } else {
+      res.send({
+        status: false,
+        data: "something wrong",
+      });
+    }
   } catch (err) {
     console.log(err.name, err.message);
     res.send({
