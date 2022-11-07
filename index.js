@@ -1,7 +1,7 @@
 //required packages
 const express = require("express");
 const cors = require("cors");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -44,6 +44,23 @@ app.get("/services", async (req, res) => {
     console.log(err.name, err.message);
     res.send({
       status: "error",
+      data: err.name,
+    });
+  }
+});
+
+//get specific service by service id
+app.get("/services/:id", async (req, res) => {
+  try {
+    const service = await dbServices.findOne({ _id: ObjectId(req.params.id) });
+    res.send({
+      status: true,
+      data: service,
+    });
+  } catch (err) {
+    console.log(err.name, err.message);
+    res.send({
+      status: false,
       data: err.name,
     });
   }
