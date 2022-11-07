@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
@@ -129,6 +130,24 @@ app.get("/reviews", async (req, res) => {
     res.send({
       status: true,
       data: reviews,
+    });
+  } catch (err) {
+    res.send({
+      status: false,
+      data: err.name,
+    });
+  }
+});
+
+//requesting fot jwt token
+app.post("/jwt-token", (req, res) => {
+  try {
+    const token = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "3h",
+    });
+    res.send({
+      status: true,
+      data: token,
     });
   } catch (err) {
     res.send({
