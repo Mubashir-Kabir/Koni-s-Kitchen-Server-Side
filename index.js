@@ -35,11 +35,12 @@ const dbConnection = async () => {
 };
 dbConnection();
 
-//get all services
+//get services
+//for limited services query params "limit" should be added
 app.get("/services", async (req, res) => {
   try {
-    const cursor = await dbServices.find({});
-    const services = await cursor.toArray();
+    const cursor = dbServices.find({});
+    const services = await cursor.limit(parseInt(req.query.limit)).toArray();
     res.send({
       status: true,
       data: services,
@@ -54,6 +55,7 @@ app.get("/services", async (req, res) => {
 });
 
 //get specific service by service id
+//need request params
 app.get("/services/:id", async (req, res) => {
   try {
     const service = await dbServices.findOne({ _id: ObjectId(req.params.id) });
@@ -71,6 +73,7 @@ app.get("/services/:id", async (req, res) => {
 });
 
 //create services
+//need request body in json formate
 app.post("/services", async (req, res) => {
   try {
     const result = await dbServices.insertOne(req.body);
@@ -95,6 +98,7 @@ app.post("/services", async (req, res) => {
 });
 
 //create review
+//need request body in json formate
 app.post("/reviews", async (req, res) => {
   try {
     const result = await dbReviews.insertOne(req.body);
@@ -140,6 +144,7 @@ app.get("/reviews", async (req, res) => {
 });
 
 //requesting fot jwt token
+//need request body in json formate
 app.post("/jwt-token", (req, res) => {
   try {
     const token = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET, {
