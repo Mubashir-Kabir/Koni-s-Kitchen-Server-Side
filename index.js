@@ -187,6 +187,29 @@ app.delete("/reviews/:id", async (req, res) => {
   }
 });
 
+//update specific review with review id (_id)
+app.put("/reviews/:id", async (req, res) => {
+  try {
+    const query = { _id: ObjectId(req.params.id) };
+    const review = req.body;
+    const result = await dbReviews.updateOne(query, { $set: review });
+    if (result.modifiedCount) {
+      res.send({
+        status: true,
+        message: "successfully updated",
+      });
+    } else {
+      console.log(result);
+      res.send({
+        status: false,
+        error: "something went wrong",
+      });
+    }
+  } catch (error) {
+    console.log(error.name, error.message);
+  }
+});
+
 //server listener
 app.listen(port, () => {
   console.log(`server is listening at port ${port}`);
