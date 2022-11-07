@@ -69,6 +69,30 @@ app.get("/services/:id", async (req, res) => {
   }
 });
 
+//create services
+app.post("/services", async (req, res) => {
+  try {
+    const result = await dbServices.insertOne(req.body);
+    if (result.insertedId) {
+      res.send({
+        status: true,
+        data: result.insertedId,
+      });
+    } else {
+      res.send({
+        status: false,
+        data: "something wrong",
+      });
+    }
+  } catch (err) {
+    console.log(err.name, err.message);
+    res.send({
+      status: false,
+      data: err.name,
+    });
+  }
+});
+
 //create review
 app.post("/reviews", async (req, res) => {
   try {
