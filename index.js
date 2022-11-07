@@ -162,6 +162,31 @@ app.post("/jwt-token", (req, res) => {
   }
 });
 
+//delete specific review with review id (_id)
+app.delete("/reviews/:id", async (req, res) => {
+  try {
+    const query = { _id: ObjectId(req.params.id) };
+    const result = await dbReviews.deleteOne(query);
+    if (result.deletedCount) {
+      res.send({
+        status: true,
+        message: "deleted successfully",
+      });
+    } else {
+      res.send({
+        status: false,
+        message: "something wrong, try again",
+      });
+    }
+  } catch (err) {
+    console.log(err.name, err.message);
+    res.send({
+      status: false,
+      message: err.name,
+    });
+  }
+});
+
 //server listener
 app.listen(port, () => {
   console.log(`server is listening at port ${port}`);
