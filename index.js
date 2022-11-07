@@ -93,6 +93,27 @@ app.post("/reviews", async (req, res) => {
   }
 });
 
+//get reviews for specific post or specific user
+//reviews?key=user-email&value=test3@gmail.com
+//reviews?key=post-id&value=636949c446ba50945d653d2d
+app.get("/reviews", async (req, res) => {
+  console.log(req.query);
+  try {
+    const key = req.query.key;
+    const value = req.query.value;
+    const reviews = await dbReviews.find({ [key]: value }).toArray();
+    res.send({
+      status: true,
+      data: reviews,
+    });
+  } catch (err) {
+    res.send({
+      status: false,
+      data: err.name,
+    });
+  }
+});
+
 //server listener
 app.listen(port, () => {
   console.log(`server is listening at port ${port}`);
