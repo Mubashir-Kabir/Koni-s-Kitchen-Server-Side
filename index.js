@@ -192,7 +192,7 @@ app.get("/reviews/private", verifyJwt, async (req, res) => {
 app.post("/jwt-token", (req, res) => {
   try {
     const token = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "3h",
+      expiresIn: "1d",
     });
     res.send({
       status: true,
