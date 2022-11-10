@@ -35,12 +35,30 @@ const dbConnection = async () => {
 };
 dbConnection();
 
+//verify jwt token
+const verifyJwt = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).send("unauthorized access");
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send("forbidden access");
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
+
 //get services
 //for limited services query params "limit" should be added
 app.get("/services", async (req, res) => {
   try {
     const cursor = dbServices.find({});
-    const services = await cursor.limit(parseInt(req.query.limit)).toArray();
+    const services = await cursor
+      .limit(parseInt(req.query.limit))
+      .sort({ timeObj: -1 })
+      .toArray();
     res.send({
       status: true,
       data: services,
@@ -122,20 +140,46 @@ app.post("/reviews", async (req, res) => {
   }
 });
 
-//get reviews for specific post or specific user
-//reviews?key=user-email&value=test3@gmail.com
-//reviews?key=post-id&value=636949c446ba50945d653d2d
-app.get("/reviews", async (req, res) => {
-  console.log(req.query);
+//get reviews for public route
+//reviews/public?id=636949c446ba50945d653d2d
+app.get("/reviews/public", async (req, res) => {
   try {
-    const key = req.query.key;
-    const value = req.query.value;
-    const reviews = await dbReviews.find({ [key]: value }).toArray();
+    const id = req.query.id;
+    const reviews = await dbReviews
+      .find({ postId: id })
+      .sort({ timeObj: -1 })
+      .toArray();
     res.send({
       status: true,
       data: reviews,
     });
   } catch (err) {
+    console.log(err);
+    res.send({
+      status: false,
+      data: err.name,
+    });
+  }
+});
+//get reviews for private route
+//reviews/private?email=mohammad15-10691@diu.edu.bd
+app.get("/reviews/private", verifyJwt, async (req, res) => {
+  try {
+    const email = req.query.email;
+    const decoded = req.decoded.email;
+    if (email !== decoded) {
+      return res.status(403).send("access forbidden");
+    }
+    const reviews = await dbReviews
+      .find({ userEmail: email })
+      .sort({ timeObj: -1 })
+      .toArray();
+    res.send({
+      status: true,
+      data: reviews,
+    });
+  } catch (err) {
+    console.log(err);
     res.send({
       status: false,
       data: err.name,
