@@ -66,7 +66,7 @@ app.get("/services", async (req, res) => {
   } catch (err) {
     console.log(err.name, err.message);
     res.send({
-      status: "error",
+      status: false,
       data: err.name,
     });
   }
@@ -168,7 +168,10 @@ app.get("/reviews/private", verifyJwt, async (req, res) => {
     const email = req.query.email;
     const decoded = req.decoded.email;
     if (email !== decoded) {
-      return res.status(403).send("access forbidden");
+      return res.status(403).send({
+        status: false,
+        data: "access forbidden",
+      });
     }
     const reviews = await dbReviews
       .find({ userEmail: email })
@@ -251,6 +254,10 @@ app.put("/reviews/:id", async (req, res) => {
     }
   } catch (error) {
     console.log(error.name, error.message);
+    res.send({
+      status: false,
+      error: error.name,
+    });
   }
 });
 
